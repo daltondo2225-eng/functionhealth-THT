@@ -1,0 +1,29 @@
+# Backend
+**/bin/
+**/obj/
+*.user
+.vs/
+
+# SQLite local data
+data/
+*.db
+*.db-journal
+
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Env / secrets
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp

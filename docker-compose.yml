@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      Jwt__Secret: "${JWT_SECRET:-dev-only-secret-do-not-use-in-production-please-replace-min-32}"
+      ConnectionStrings__Default: "Data Source=/data/todos.db"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      Cors__AllowedOrigins__0: "http://localhost:5173"
+    volumes:
+      - ./data:/data
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
