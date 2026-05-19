@@ -17,6 +17,7 @@ export const tokenStorage = {
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api',
   headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
 })
 
 api.interceptors.request.use((config) => {
@@ -47,11 +48,16 @@ export function normalizeError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const body = error.response?.data as { error?: ApiError } | undefined
     if (body?.error) return body.error
-    if (error.response) {
-      return {
-        code: 'http_error',
-        message: `Request failed (${error.response.status})`,
-      }
+
+    const status = error.response?.status
+    if (status === 502 || status === 503 || status === 504) {
+      return { code: 'backend_unavailable', message: 'Backend is unavailable. Please try again in a moment.' }
+    }
+    if (status) {
+      return { code: 'http_error', message: `Request failed (${status}).` }
+    }
+    if (error.code === 'ECONNABORTED') {
+      return { code: 'timeout', message: 'Request timed out. Please try again.' }
     }
     return { code: 'network_error', message: 'Network error. Check your connection.' }
   }
