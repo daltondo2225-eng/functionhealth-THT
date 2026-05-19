@@ -3,8 +3,9 @@ import { todosApi } from '../api/todos'
 import { ErrorBanner } from './ErrorBanner'
 import { TodoItem } from './TodoItem'
 import type { ApiError } from '../api/client'
+import type { TodoFilter } from '../pages/TodosPage'
 
-export function TodoList() {
+export function TodoList({ filter = 'all' }: { filter?: TodoFilter }) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['todos'],
     queryFn: todosApi.list,
@@ -22,9 +23,21 @@ export function TodoList() {
     return <p className="empty">No tasks yet. Add one above.</p>
   }
 
+  const visible = data.filter((t) =>
+    filter === 'all' ? true : filter === 'completed' ? t.isCompleted : !t.isCompleted
+  )
+
+  if (visible.length === 0) {
+    return (
+      <p className="empty">
+        {filter === 'completed' ? 'No completed tasks.' : 'Nothing active. Nice work.'}
+      </p>
+    )
+  }
+
   return (
     <div className="todo-list">
-      {data.map((todo) => (
+      {visible.map((todo) => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
     </div>

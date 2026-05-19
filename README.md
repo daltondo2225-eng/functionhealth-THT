@@ -75,6 +75,7 @@ Login uses an identical 401 message for "no such email" and "wrong password" to 
 - **TanStack Query** on the frontend caches the todo list under one key. Every mutation invalidates that key so the UI always renders backend truth — no optimistic updates, no client-side merging, no drift between create/update and list view.
 - **`localStorage` for the JWT** and a tiny `AuthContext` for hydration and sign-out. The axios client attaches the token automatically and clears + redirects to `/login` on any 401.
 - **Edit form drafts are local component state** and are deliberately *not* reset on a failed save — see [TodoItem.tsx](frontend/src/components/TodoItem.tsx) and the corresponding test in [TodosPage.test.tsx](frontend/src/__tests__/TodosPage.test.tsx).
+- **Status filter (All / Active / Completed) + "X of Y done" counter** are client-side over the already-fetched list. No server-side `?status=` query param, no contract drift between layers; if the list ever grew beyond a few hundred items, this is where you'd add a server-side filter, and the test in [TodosPage.test.tsx](frontend/src/__tests__/TodosPage.test.tsx) would be updated in lockstep.
 
 ## Trade-offs / scope choices
 
@@ -120,7 +121,7 @@ Test coverage focuses on the failure modes the rubric names:
 - `OwnershipTests.cs` — every cross-user attempt (GET, PUT, DELETE) returns 404 and the victim's row is unchanged; no-token and tampered-token both return 401.
 - `TodoCrudTests.cs` — create, update, toggle, delete, and empty-title validation that doesn't corrupt the row.
 - Frontend `LoginPage.test.tsx` — happy path navigation, 401 banner with typed-email preservation.
-- Frontend `TodosPage.test.tsx` — list render, create + invalidate, toggle, **failed-edit-preserves-draft**, delete.
+- Frontend `TodosPage.test.tsx` — list render, create + invalidate, toggle, **failed-edit-preserves-draft**, delete, status filter + done-counter.
 
 ## Project layout
 

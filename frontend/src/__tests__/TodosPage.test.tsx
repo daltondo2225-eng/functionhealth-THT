@@ -136,4 +136,31 @@ describe('TodosPage', () => {
     await screen.findByText('Walk dog')
     expect(screen.queryByText('Buy milk')).not.toBeInTheDocument()
   })
+
+  it('shows the done counter and filters by status', async () => {
+    const todos: TodoDto[] = [
+      todo({ id: 't1', title: 'Buy milk', isCompleted: false }),
+      todo({ id: 't2', title: 'Walk dog', isCompleted: true }),
+      todo({ id: 't3', title: 'Write README', isCompleted: false }),
+    ]
+    server.use(http.get('/api/todos', () => HttpResponse.json(todos)))
+
+    renderTodos()
+    const user = userEvent.setup()
+
+    expect(await screen.findByText('1 of 3 done')).toBeInTheDocument()
+    expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    expect(screen.getByText('Walk dog')).toBeInTheDocument()
+    expect(screen.getByText('Write README')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^active$/i }))
+    expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    expect(screen.queryByText('Walk dog')).not.toBeInTheDocument()
+    expect(screen.getByText('Write README')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^completed$/i }))
+    expect(screen.queryByText('Buy milk')).not.toBeInTheDocument()
+    expect(screen.getByText('Walk dog')).toBeInTheDocument()
+    expect(screen.queryByText('Write README')).not.toBeInTheDocument()
+  })
 })
