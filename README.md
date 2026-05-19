@@ -68,6 +68,8 @@ Cross-user access returns **404, not 403**, on purpose: a 403 leaks the fact tha
 
 Login uses an identical 401 message for "no such email" and "wrong password" to prevent user enumeration. Passwords are hashed with BCrypt (work factor 11). JWTs are HS256-signed with a 12-hour lifetime; the secret is required to be ≥32 characters and the app refuses to start otherwise.
 
+**Token storage trade-off.** The JWT is kept in `localStorage` rather than an httpOnly cookie. The trade is convenience and zero CSRF surface against a slightly larger XSS blast radius if the SPA ever ships an XSS bug. For an SPA on a separate origin from the API this is a defensible default; the production-grade alternative — httpOnly + Secure + SameSite cookie with a CSRF token — is listed under "What I'd add for production." All user-rendered text in the app is React-escaped and we keep no `dangerouslySetInnerHTML` usage, so the XSS surface today is small.
+
 ## Architecture decisions
 
 - **Flat, not layered.** Minimal API endpoints (`Endpoints/*.cs`) talk to EF Core directly. No `IRepository`, no `IService` — those abstractions don't solve a real problem here.
