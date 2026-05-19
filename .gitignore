@@ -4,8 +4,8 @@
 *.user
 .vs/
 
-# SQLite local data
-data/
+# SQLite local data — only the runtime volume at repo root, not source dirs named Data/
+/data/
 *.db
 *.db-journal
 
