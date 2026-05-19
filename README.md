@@ -99,7 +99,6 @@ Login uses an identical 401 message for "no such email" and "wrong password" to 
 - Soft-delete (`DeletedAt`) with a recovery window before hard delete.
 - Email verification + password reset flow.
 - CSP/HSTS/security headers at the edge (reverse proxy) and `Strict-Transport-Security`.
-- CI pipeline running both test suites and `docker compose build` on every PR.
 - Playwright end-to-end smoke covering register → create → edit → delete → logout.
 - Sentry/Datadog for production error surfaces; UI error boundary too.
 
@@ -116,6 +115,8 @@ cd frontend && npm test -- --run
 ```
 
 The backend test factory uses a real in-memory SQLite connection (`Microsoft.Data.Sqlite` with a keepalive `SqliteConnection`), not the EF InMemory provider. This gives real constraint behaviour, real transactions, and real SQL semantics in the integration suite.
+
+Both suites also run in CI on every push and PR to `main` — see [.github/workflows/ci.yml](.github/workflows/ci.yml). The frontend job additionally runs `tsc -b --noEmit` and `npm run build` so contract drift between TypeScript types and the API surface fails the build, not the reviewer.
 
 Test coverage focuses on the failure modes the rubric names:
 
