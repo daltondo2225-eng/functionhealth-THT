@@ -83,7 +83,7 @@ Login uses an identical 401 message for "no such email" and "wrong password" to 
 
 | Skipped | Why |
 | ------- | --- |
-| Due dates | Date/time-zone bugs are a well-known failure mode for take-homes. The prompt didn't require them; omitting them eliminates the risk entirely rather than half-implementing them. |
+| Due dates | Deliberate. The take-home guide flags timezone-sensitive date handling as a class of bug it sees fail constantly ("if you build them, build them right"). The prompt does not require dates, so omitting them eliminates that entire failure mode rather than risk a subtly-wrong implementation. The data model has room for `DueDate` as a future `DateOnly?` field. |
 | Filter / sort / pagination | No real volume problem to solve at this scope; pagination state desync is itself a common failure mode, so skipping eliminates the risk. |
 | Refresh tokens | A single 12-hour access token is honest for this scope. Refresh-token rotation is listed below as a "production-add." |
 | Optimistic UI | Pessimistic mutations + query invalidation guarantee the list reflects backend state. Optimistic UX is nice but easy to get subtly wrong; skipping it is safer for an evaluation. |
@@ -115,8 +115,6 @@ cd frontend && npm test -- --run
 ```
 
 The backend test factory uses a real in-memory SQLite connection (`Microsoft.Data.Sqlite` with a keepalive `SqliteConnection`), not the EF InMemory provider. This gives real constraint behaviour, real transactions, and real SQL semantics in the integration suite.
-
-Both suites also run in CI on every push and PR to `main` — see [.github/workflows/ci.yml](.github/workflows/ci.yml). The frontend job additionally runs `tsc -b --noEmit` and `npm run build` so contract drift between TypeScript types and the API surface fails the build, not the reviewer.
 
 Test coverage focuses on the failure modes the rubric names:
 
